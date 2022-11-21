@@ -1,0 +1,6 @@
+prosper:
+  client-id: ${PROSPER_CLIENT_ID}
+  client-secret: ${PROSPER_CLIENT_SECRET}
+  username: ${PROSPER_USERNAME}
+  pasword: ${PROSPER_PASSWORD}
+  base-url: ${PROSPER_BASE_URL:https://api.prosper.com}
