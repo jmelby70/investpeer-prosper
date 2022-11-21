@@ -23,7 +23,7 @@ public class ProsperRestService
 {
     private final RestTemplate restTemplate;
     private final ProsperConfig prosperConfig;
-    private static OAuthToken oAuthToken;
+    private OAuthToken oAuthToken;
 
     protected RestTemplate getRestTemplate()
     {
