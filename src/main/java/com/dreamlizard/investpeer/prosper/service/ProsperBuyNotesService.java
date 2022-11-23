@@ -4,11 +4,13 @@ import com.dreamlizard.investpeer.prosper.config.ProsperConfig;
 import com.dreamlizard.investpeer.prosper.constants.AppConstants;
 import com.dreamlizard.investpeer.prosper.exception.ProsperRestServiceException;
 import com.dreamlizard.investpeer.prosper.model.Account;
+import com.dreamlizard.investpeer.prosper.model.BidRequest;
 import com.dreamlizard.investpeer.prosper.model.FilterSet;
 import com.dreamlizard.investpeer.prosper.model.FilterSetProperties;
 import com.dreamlizard.investpeer.prosper.model.Listing;
 import com.dreamlizard.investpeer.prosper.model.Listings;
-import com.dreamlizard.investpeer.prosper.model.OrderResponse;
+import com.dreamlizard.investpeer.prosper.model.OrdersList;
+import com.dreamlizard.investpeer.prosper.model.OrdersResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -30,6 +32,7 @@ public class ProsperBuyNotesService
     private final AccountsRestService accountsRestService;
     private final ListingsRestService listingsRestService;
     private final OrdersRestService ordersRestService;
+    private final OrdersListRestService ordersListRestService;
     @Getter
     @Setter
     private String runMode;
@@ -59,14 +62,19 @@ public class ProsperBuyNotesService
                 if ((filteredListings != null) && (filteredListings.size() > 0))
                 {
                     log.info("Filtered listing count: " + filteredListings.size());
-                    log.fine("Filtered listings: " + filteredListings.toString());
+
+                    // Trim out Listings already pending on orders
+                    Set<Listing> trimmedListings = trimFilteredListing(filteredListings);
+
+                    log.info("Trimmed listing count: " + trimmedListings.size());
+                    log.fine("Final Listings: " + trimmedListings.toString());
 
                     // If runMode is prod, submit orders for filtered listings
                     if (AppConstants.PROD_MODE.equalsIgnoreCase(runMode))
                     {
                         log.info("Submitting order...");
-                        OrderResponse orderResponse = ordersRestService.sumbitOrder(filteredListings);
-                        log.info("Order submitted: " + orderResponse.getOrder_id());
+                        OrdersResponse ordersResponse = ordersRestService.sumbitOrder(trimmedListings);
+                        log.info("Order submitted: " + ordersResponse.getOrder_id());
                     }
                 }
                 else
@@ -118,5 +126,32 @@ public class ProsperBuyNotesService
         }
 
         return filteredListings;
+    }
+
+    private Set<Listing> trimFilteredListing(Set<Listing> filteredListings) throws ProsperRestServiceException
+    {
+        OrdersList ordersList = ordersListRestService.getOrdersList();
+        HashSet<Listing> trimmedListings = new HashSet<>(filteredListings);
+        if (ordersList != null)
+        {
+            for (OrdersResponse ordersResponse : ordersList.getResult())
+            {
+                if ("IN_PROGRESS".equals(ordersResponse.getOrder_status()) && (ordersResponse.getBid_requests() != null))
+                {
+                    for (BidRequest bidRequest : ordersResponse.getBid_requests())
+                    {
+                        for (Listing listing : filteredListings)
+                        {
+                            if (bidRequest.getListing_id() == listing.getListing_number())
+                            {
+                                trimmedListings.remove(listing);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return trimmedListings;
     }
 }
