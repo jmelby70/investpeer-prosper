@@ -1,7 +1,8 @@
 package com.dreamlizard.investpeer.prosper.service;
 
-import com.dreamlizard.investpeer.prosper.PubSubMessage;
+import com.dreamlizard.investpeer.prosper.constants.AppConstants;
 import com.dreamlizard.investpeer.prosper.exception.ProsperRestServiceException;
+import com.dreamlizard.investpeer.prosper.model.PubSubMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +28,17 @@ public class PubSubMessageService
             // See: https://cloud.google.com/functions/docs/calling/pubsub#event_structure
             String decodedMessage = new String(Base64.getDecoder().decode(message.getData()), StandardCharsets.UTF_8);
             log.info("Message Received: " + decodedMessage);
-            buyNotes();
+            String runMode = decodedMessage.trim();
+            prosperBuyNotesService.setRunMode(runMode);
+            if (AppConstants.TEST_MODE.equalsIgnoreCase(runMode) || AppConstants.PROD_MODE.equalsIgnoreCase(runMode))
+            {
+                log.info("Run Mode: " + runMode);
+                buyNotes();
+            }
+            else
+            {
+                log.info("No valid run mode detected, no action taken. PubSubMessage must send 'test' or 'prod' as the run mode.");
+            }
         };
     }
 

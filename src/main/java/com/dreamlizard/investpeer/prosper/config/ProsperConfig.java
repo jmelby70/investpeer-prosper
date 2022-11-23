@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Getter
 @Setter
 @Component
@@ -16,4 +18,6 @@ public class ProsperConfig
     private String username;
     private String password;
     private String baseUrl;
+    private double minimumInvestmentAmount;
+    private Map<String, String> globalFilters;
 }

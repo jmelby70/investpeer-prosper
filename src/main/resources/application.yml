@@ -1,6 +1,15 @@
+spring:
+  profiles:
+    include: 'filterset'
+
 prosper:
   client-id: ${PROSPER_CLIENT_ID}
   client-secret: ${PROSPER_CLIENT_SECRET}
   username: ${PROSPER_USERNAME}
-  pasword: ${PROSPER_PASSWORD}
+  password: ${PROSPER_PASSWORD}
   base-url: ${PROSPER_BASE_URL:https://api.prosper.com}
+  minimum-investment-amount: ${PROSPER_MINIMUM_INVESTMENT_AMOUNT:25.0}
+  global-filters:
+    listing_category_id: "1"
+    has_mortgage: "true"
+    income_range: "4,5,6"

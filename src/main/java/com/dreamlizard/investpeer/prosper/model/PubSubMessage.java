@@ -1,4 +1,4 @@
-package com.dreamlizard.investpeer.prosper;
+package com.dreamlizard.investpeer.prosper.model;
 
 import lombok.Getter;
 import lombok.Setter;

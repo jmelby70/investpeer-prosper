@@ -3,32 +3,34 @@ package com.dreamlizard.investpeer.prosper.service;
 import com.dreamlizard.investpeer.prosper.config.ProsperConfig;
 import com.dreamlizard.investpeer.prosper.exception.ProsperRestServiceException;
 import com.dreamlizard.investpeer.prosper.model.OAuthToken;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
 
+//import com.dreamlizard.investpeer.prosper.model.Account;
+
 @Log
 @RequiredArgsConstructor
-public class ProsperRestService
+public class ProsperRestService<T>
 {
+    @Getter
     private final RestTemplate restTemplate;
+    @Getter
     private final ProsperConfig prosperConfig;
     private OAuthToken oAuthToken;
-
-    protected RestTemplate getRestTemplate()
-    {
-        return restTemplate;
-    }
 
     protected String getBaseUrl()
     {
@@ -78,5 +80,55 @@ public class ProsperRestService
         oAuthToken = responseEntity.getBody();
         log.info("OAuth Token retrieved with expiry in " + oAuthToken.getExpires_in() + " seconds");
 
+    }
+
+    protected T getEntity(String url, Class<T> entityClass) throws ProsperRestServiceException
+    {
+        HttpEntity httpEntity = new HttpEntity(getHttpHeaders());
+        ResponseEntity<T> responseEntity;
+        try
+        {
+            responseEntity = getRestTemplate().exchange(url, HttpMethod.GET, httpEntity, entityClass);
+        }
+        catch (HttpClientErrorException.Forbidden hce)
+        {
+
+            log.info("Expired access token detected, re-initializing token...");
+            initToken();
+            httpEntity = new HttpEntity(getHttpHeaders());
+            responseEntity = getRestTemplate().exchange(url, HttpMethod.GET, httpEntity, entityClass);
+        }
+
+        if (responseEntity.getStatusCode().isError())
+        {
+            throw new ProsperRestServiceException("Error retrieving " + entityClass.getName() + ": " + responseEntity.getStatusCode());
+        }
+
+        return responseEntity.getBody();
+    }
+
+    protected <E> T postEntity(String url, E requestEntity, Class<T> responseEntityClass) throws ProsperRestServiceException
+    {
+        HttpEntity<E> httpEntity = new HttpEntity<>(requestEntity, getHttpHeaders());
+        ResponseEntity<T> responseEntity;
+        try
+        {
+            responseEntity = getRestTemplate().exchange(url, HttpMethod.POST, httpEntity, responseEntityClass);
+        }
+        catch (HttpClientErrorException.Forbidden hce)
+        {
+
+            log.info("Expired access token detected, re-initializing token...");
+            initToken();
+            httpEntity = new HttpEntity<>(requestEntity, getHttpHeaders());
+            responseEntity = getRestTemplate().exchange(url, HttpMethod.POST, httpEntity, responseEntityClass);
+        }
+
+        if (responseEntity.getStatusCode().isError())
+        {
+            throw new ProsperRestServiceException("Error posting " + requestEntity.getClass().getName() + ": " + responseEntity.getStatusCode());
+        }
+
+        return responseEntity.getBody();
     }
 }
