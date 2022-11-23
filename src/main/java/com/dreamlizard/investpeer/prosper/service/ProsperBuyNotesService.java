@@ -10,6 +10,7 @@ import com.dreamlizard.investpeer.prosper.model.FilterSetProperties;
 import com.dreamlizard.investpeer.prosper.model.Listing;
 import com.dreamlizard.investpeer.prosper.model.Listings;
 import com.dreamlizard.investpeer.prosper.model.OrdersList;
+import com.dreamlizard.investpeer.prosper.model.OrdersRequest;
 import com.dreamlizard.investpeer.prosper.model.OrdersResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -65,15 +67,15 @@ public class ProsperBuyNotesService
 
                     // Trim out Listings already pending on orders
                     Set<Listing> trimmedListings = trimFilteredListing(filteredListings);
-
                     log.info("Trimmed listing count: " + trimmedListings.size());
                     log.fine("Final Listings: " + trimmedListings.toString());
+                    OrdersRequest ordersRequest = createOrderRequest(trimmedListings, maxLoanCount);
 
                     // If runMode is prod, submit orders for filtered listings
                     if (AppConstants.PROD_MODE.equalsIgnoreCase(runMode))
                     {
                         log.info("Submitting order...");
-                        OrdersResponse ordersResponse = ordersRestService.sumbitOrder(trimmedListings);
+                        OrdersResponse ordersResponse = ordersRestService.sumbitOrder(ordersRequest);
                         log.info("Order submitted: " + ordersResponse.getOrder_id());
                     }
                 }
@@ -153,5 +155,27 @@ public class ProsperBuyNotesService
         }
 
         return trimmedListings;
+    }
+
+    private OrdersRequest createOrderRequest(Set<Listing> listings, int maxLoanCount)
+    {
+        OrdersRequest ordersRequest = new OrdersRequest();
+        ArrayList<BidRequest> bidRequests = new ArrayList<>();
+        int i = 0;
+        for (Listing listing : listings)
+        {
+            if ((i < maxLoanCount) && (i < 100))
+            {
+                BidRequest bidRequest = new BidRequest();
+                bidRequest.setBid_amount(prosperConfig.getMinimumInvestmentAmount());
+                bidRequest.setListing_id(listing.getListing_number());
+                bidRequests.add(bidRequest);
+                i++;
+            }
+        }
+
+        ordersRequest.setBid_requests(bidRequests);
+        log.info("Created OrdersRequest: " + ordersRequest.toString());
+        return ordersRequest;
     }
 }
