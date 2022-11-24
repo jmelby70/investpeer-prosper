@@ -9,9 +9,9 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class OrdersListRestService extends ProsperRestService<OrdersList>
 {
-    public OrdersListRestService(RestTemplate restTemplate, ProsperConfig prosperConfig)
+    public OrdersListRestService(RestTemplate restTemplate, ProsperConfig prosperConfig, OAuthTokenHolder oAuthTokenHolder)
     {
-        super(restTemplate, prosperConfig);
+        super(restTemplate, prosperConfig, oAuthTokenHolder);
     }
 
     public OrdersList getOrdersList() throws ProsperRestServiceException

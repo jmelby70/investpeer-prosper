@@ -14,9 +14,9 @@ import java.util.Map;
 @Service
 public class ListingsRestService extends ProsperRestService<Listings>
 {
-    public ListingsRestService(RestTemplate restTemplate, ProsperConfig prosperConfig)
+    public ListingsRestService(RestTemplate restTemplate, ProsperConfig prosperConfig, OAuthTokenHolder oAuthTokenHolder)
     {
-        super(restTemplate, prosperConfig);
+        super(restTemplate, prosperConfig, oAuthTokenHolder);
     }
 
     public Listings getListings() throws ProsperRestServiceException

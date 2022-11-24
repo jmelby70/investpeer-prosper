@@ -30,7 +30,7 @@ public class ProsperRestService<T>
     private final RestTemplate restTemplate;
     @Getter
     private final ProsperConfig prosperConfig;
-    private OAuthToken oAuthToken;
+    private final OAuthTokenHolder oAuthTokenHolder;
 
     protected String getBaseUrl()
     {
@@ -44,11 +44,11 @@ public class ProsperRestService<T>
         mediaTypeList.add(MediaType.APPLICATION_JSON);
         httpHeaders.setAccept(mediaTypeList);
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        if ((oAuthToken == null) || (ObjectUtils.isEmpty(oAuthToken.getAccess_token())))
+        if ((oAuthTokenHolder.getOAuthToken() == null) || (ObjectUtils.isEmpty(oAuthTokenHolder.getOAuthToken().getAccess_token())))
         {
             initToken();
         }
-        httpHeaders.add("Authorization", "bearer " + oAuthToken.getAccess_token());
+        httpHeaders.add("Authorization", "bearer " + oAuthTokenHolder.getOAuthToken().getAccess_token());
 
         return httpHeaders;
     }
@@ -77,8 +77,8 @@ public class ProsperRestService<T>
             throw new ProsperRestServiceException("Exception initializing Prosper OAuth Token" + responseEntity.getStatusCode());
         }
 
-        oAuthToken = responseEntity.getBody();
-        log.info("OAuth Token retrieved with expiry in " + oAuthToken.getExpires_in() + " seconds");
+        oAuthTokenHolder.setOAuthToken(responseEntity.getBody());
+        log.info("OAuth Token retrieved with expiry in " + oAuthTokenHolder.getOAuthToken().getExpires_in() + " seconds");
 
     }
 
@@ -90,7 +90,7 @@ public class ProsperRestService<T>
         {
             responseEntity = getRestTemplate().exchange(url, HttpMethod.GET, httpEntity, entityClass);
         }
-        catch (HttpClientErrorException.Forbidden|HttpClientErrorException.Unauthorized hce)
+        catch (HttpClientErrorException.Forbidden | HttpClientErrorException.Unauthorized hce)
         {
 
             log.info("Expired access token detected, re-initializing token...");
@@ -115,7 +115,7 @@ public class ProsperRestService<T>
         {
             responseEntity = getRestTemplate().exchange(url, HttpMethod.POST, httpEntity, responseEntityClass);
         }
-        catch (HttpClientErrorException.Forbidden|HttpClientErrorException.Unauthorized hce)
+        catch (HttpClientErrorException.Forbidden | HttpClientErrorException.Unauthorized hce)
         {
 
             log.info("Expired access token detected, re-initializing token...");

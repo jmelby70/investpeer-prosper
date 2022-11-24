@@ -11,9 +11,9 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class AccountsRestService extends ProsperRestService<Account>
 {
-    public AccountsRestService(RestTemplate restTemplate, ProsperConfig prosperConfig)
+    public AccountsRestService(RestTemplate restTemplate, ProsperConfig prosperConfig, OAuthTokenHolder oAuthTokenHolder)
     {
-        super(restTemplate, prosperConfig);
+        super(restTemplate, prosperConfig, oAuthTokenHolder);
     }
 
     public Account getAccount() throws ProsperRestServiceException

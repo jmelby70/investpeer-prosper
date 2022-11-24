@@ -12,9 +12,9 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class OrdersRestService extends ProsperRestService<OrdersResponse>
 {
-    public OrdersRestService(RestTemplate restTemplate, ProsperConfig prosperConfig)
+    public OrdersRestService(RestTemplate restTemplate, ProsperConfig prosperConfig, OAuthTokenHolder oAuthTokenHolder)
     {
-        super(restTemplate, prosperConfig);
+        super(restTemplate, prosperConfig, oAuthTokenHolder);
     }
 
     public OrdersResponse sumbitOrder(OrdersRequest ordersRequest) throws ProsperRestServiceException
