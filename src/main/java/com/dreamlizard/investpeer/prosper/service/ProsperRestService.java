@@ -90,7 +90,7 @@ public class ProsperRestService<T>
         {
             responseEntity = getRestTemplate().exchange(url, HttpMethod.GET, httpEntity, entityClass);
         }
-        catch (HttpClientErrorException.Forbidden hce)
+        catch (HttpClientErrorException.Forbidden|HttpClientErrorException.Unauthorized hce)
         {
 
             log.info("Expired access token detected, re-initializing token...");
@@ -115,7 +115,7 @@ public class ProsperRestService<T>
         {
             responseEntity = getRestTemplate().exchange(url, HttpMethod.POST, httpEntity, responseEntityClass);
         }
-        catch (HttpClientErrorException.Forbidden hce)
+        catch (HttpClientErrorException.Forbidden|HttpClientErrorException.Unauthorized hce)
         {
 
             log.info("Expired access token detected, re-initializing token...");
