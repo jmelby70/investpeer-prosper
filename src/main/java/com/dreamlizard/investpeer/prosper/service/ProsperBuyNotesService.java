@@ -72,7 +72,7 @@ public class ProsperBuyNotesService
                     OrdersRequest ordersRequest = createOrderRequest(trimmedListings, maxLoanCount);
 
                     // If runMode is prod, submit orders for filtered listings
-                    if (AppConstants.PROD_MODE.equalsIgnoreCase(runMode))
+                    if (AppConstants.PROD_MODE.equalsIgnoreCase(runMode) && trimmedListings.size() > 0)
                     {
                         log.info("Submitting order...");
                         OrdersResponse ordersResponse = ordersRestService.sumbitOrder(ordersRequest);
