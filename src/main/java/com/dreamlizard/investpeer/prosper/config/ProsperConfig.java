@@ -20,4 +20,5 @@ public class ProsperConfig
     private String baseUrl;
     private double minimumInvestmentAmount;
     private Map<String, String> globalFilters;
+    private int orderListLimit;
 }

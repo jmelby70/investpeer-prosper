@@ -16,8 +16,29 @@ public class OrdersListRestService extends ProsperRestService<OrdersList>
 
     public OrdersList getOrdersList() throws ProsperRestServiceException
     {
-        // todo handle pagination; default page is 25
-        String url = getBaseUrl() + "/v1/orders/";
+        OrdersList ordersList = invokeOrdersList();
+        if (ordersList.getResult().size() < ordersList.getTotal_count())
+        {
+            int i = ordersList.getResult().size();
+            while (i < ordersList.getTotal_count())
+            {
+                OrdersList ordersList1 = invokeOrdersListOffset(i);
+                ordersList.getResult().addAll(ordersList1.getResult());
+                i = i + ordersList1.getResult().size();
+            }
+        }
+        return ordersList;
+    }
+
+    protected OrdersList invokeOrdersList() throws ProsperRestServiceException
+    {
+        String url = getBaseUrl() + "/v1/orders/?limit=" + getProsperConfig().getOrderListLimit();
+        return getEntity(url, OrdersList.class);
+    }
+
+    protected OrdersList invokeOrdersListOffset(int offset) throws ProsperRestServiceException
+    {
+        String url = getBaseUrl() + "/v1/orders/?limit=" + getProsperConfig().getOrderListLimit() + "&offset=" + offset;
         return getEntity(url, OrdersList.class);
     }
 }
