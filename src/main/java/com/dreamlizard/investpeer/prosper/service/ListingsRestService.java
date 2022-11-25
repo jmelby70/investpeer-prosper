@@ -3,14 +3,13 @@ package com.dreamlizard.investpeer.prosper.service;
 import com.dreamlizard.investpeer.prosper.config.ProsperConfig;
 import com.dreamlizard.investpeer.prosper.exception.ProsperRestServiceException;
 import com.dreamlizard.investpeer.prosper.model.Listings;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
-@Log
+@Slf4j
 @Service
 public class ListingsRestService extends ProsperRestService<Listings>
 {
@@ -33,7 +32,7 @@ public class ListingsRestService extends ProsperRestService<Listings>
                 url.append(mapEntry.getValue());
             }
         }
-        log.info("Invoking Listings service with URL: " + url.toString());
+        log.info("Invoking Listings service with URL: {}", url.toString());
 
         return getEntity(url.toString(), Listings.class);
     }

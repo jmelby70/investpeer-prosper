@@ -5,7 +5,7 @@ import com.dreamlizard.investpeer.prosper.exception.ProsperRestServiceException;
 import com.dreamlizard.investpeer.prosper.model.OAuthToken;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -20,9 +20,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
-//import com.dreamlizard.investpeer.prosper.model.Account;
 
-@Log
+@Slf4j
 @RequiredArgsConstructor
 public class ProsperRestService<T>
 {
@@ -78,7 +77,7 @@ public class ProsperRestService<T>
         }
 
         oAuthTokenHolder.setOAuthToken(responseEntity.getBody());
-        log.info("OAuth Token retrieved with expiry in " + oAuthTokenHolder.getOAuthToken().getExpires_in() + " seconds");
+        log.info("OAuth Token retrieved with expiry in {} seconds.", oAuthTokenHolder.getOAuthToken().getExpires_in());
 
     }
 

@@ -3,11 +3,9 @@ package com.dreamlizard.investpeer.prosper.service;
 import com.dreamlizard.investpeer.prosper.config.ProsperConfig;
 import com.dreamlizard.investpeer.prosper.exception.ProsperRestServiceException;
 import com.dreamlizard.investpeer.prosper.model.Account;
-import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-@Log
 @Service
 public class AccountsRestService extends ProsperRestService<Account>
 {

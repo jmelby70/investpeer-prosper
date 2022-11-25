@@ -15,7 +15,7 @@ import com.dreamlizard.investpeer.prosper.model.OrdersResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.RoundingMode;
@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-@Log
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProsperBuyNotesService
@@ -44,14 +44,14 @@ public class ProsperBuyNotesService
         // Determine how much cash is available to invest
         log.info("Gathering Account info...");
         Account account = accountsRestService.getAccount();
-        log.fine("Account:\n" + account.toString());
+        log.debug("Account:\n{}", account.toString());
         log.info("Cash available: " + account.getAvailable_cash_balance());
         if (AppConstants.TEST_MODE.equalsIgnoreCase(getRunMode()) || (account.getAvailable_cash_balance() >= prosperConfig.getMinimumInvestmentAmount()))
         {
             // Get current listings
             log.info("Getting current Listings...");
             Listings listings = listingsRestService.getListings();
-            log.info("Listing count retrieved: " + listings.getResult_count());
+            log.info("Listing count retrieved: {}", listings.getResult_count());
 
             if (listings.getResult_count() > 0)
             {
@@ -59,16 +59,16 @@ public class ProsperBuyNotesService
                 DecimalFormat df = new DecimalFormat("###");
                 df.setRoundingMode(RoundingMode.DOWN);
                 int maxLoanCount = Integer.parseInt(df.format(account.getAvailable_cash_balance() / prosperConfig.getMinimumInvestmentAmount()));
-                log.info("Max investment count possible: " + maxLoanCount);
+                log.info("Max investment count possible: {}", maxLoanCount);
                 Set<Listing> filteredListings = filterListings(listings, maxLoanCount);
                 if ((filteredListings != null) && (filteredListings.size() > 0))
                 {
-                    log.info("Filtered listing count: " + filteredListings.size());
+                    log.info("Filtered listing count: {}", filteredListings.size());
 
                     // Trim out Listings already pending on orders
                     Set<Listing> trimmedListings = trimFilteredListing(filteredListings);
-                    log.info("Trimmed listing count: " + trimmedListings.size());
-                    log.fine("Final Listings: " + trimmedListings.toString());
+                    log.info("Trimmed listing count: {}", trimmedListings.size());
+                    log.debug("Final Listings: {}", trimmedListings.toString());
                     OrdersRequest ordersRequest = createOrderRequest(trimmedListings, maxLoanCount);
 
                     // If runMode is prod, submit orders for filtered listings
@@ -76,7 +76,7 @@ public class ProsperBuyNotesService
                     {
                         log.info("Submitting order...");
                         OrdersResponse ordersResponse = ordersRestService.sumbitOrder(ordersRequest);
-                        log.info("Order submitted: " + ordersResponse.getOrder_id());
+                        log.info("Order submitted: {}", ordersResponse.getOrder_id());
                     }
                 }
                 else
@@ -102,10 +102,10 @@ public class ProsperBuyNotesService
         {
             for (FilterSet filterSet : filterSetProperties.getFilterSetList())
             {
-                log.info("FilterSet in effect if Loan Count Over: " + filterSet.getLoanCountOver());
+                log.info("FilterSet in effect if Loan Count Over: {}", filterSet.getLoanCountOver());
                 if (filterSet.getLoanCountOver() <= maxLoanCount)
                 {
-                    log.info("FilterSet in effect: " + filterSet.toString());
+                    log.info("FilterSet in effect: {}", filterSet.toString());
                     for (Listing listing : listings.getResult())
                     {
                         if (filterSet.checkGrade(listing.getProsper_rating()) &&
@@ -116,13 +116,13 @@ public class ProsperBuyNotesService
                                 filterSet.checkPaymentIncomeRatio(listing.getListing_monthly_payment(), listing.getStated_monthly_income()))
                         {
                             filteredListings.add(listing);
-                            log.info("Adding Listing: " + listing.getListing_number());
+                            log.info("Adding Listing: {}", listing.getListing_number());
                         }
                     }
                 }
                 else
                 {
-                    log.info("FilterSet skipped: " + filterSet.toString());
+                    log.info("FilterSet skipped: {}", filterSet.toString());
                 }
             }
         }
@@ -175,7 +175,7 @@ public class ProsperBuyNotesService
         }
 
         ordersRequest.setBid_requests(bidRequests);
-        log.info("Created OrdersRequest: " + ordersRequest.toString());
+        log.info("Created OrdersRequest: {}", ordersRequest.toString());
         return ordersRequest;
     }
 }
