@@ -18,6 +18,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -35,11 +36,12 @@ public class ProsperBuyNotesService
     private final ListingsRestService listingsRestService;
     private final OrdersRestService ordersRestService;
     private final OrdersListRestService ordersListRestService;
+    private final NotificationService notificationService;
     @Getter
     @Setter
     private String runMode;
 
-    public void buyNotes() throws ProsperRestServiceException
+    public void buyNotes() throws ProsperRestServiceException, IOException
     {
         // Determine how much cash is available to invest
         log.info("Gathering Account info...");
@@ -77,6 +79,7 @@ public class ProsperBuyNotesService
                         log.info("Submitting order...");
                         OrdersResponse ordersResponse = ordersRestService.sumbitOrder(ordersRequest);
                         log.info("Order submitted: {}", ordersResponse.getOrder_id());
+                        notificationService.sendOrderNotification(trimmedListings, ordersResponse);
                     }
                 }
                 else

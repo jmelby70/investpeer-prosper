@@ -10,6 +10,9 @@ prosper:
   base-url: ${PROSPER_BASE_URL:https://api.prosper.com}
   minimum-investment-amount: ${PROSPER_MINIMUM_INVESTMENT_AMOUNT:25.0}
   order-list-limit: ${PROSPER_ORDER_LIST_LIMIT:25}
+  email-from: ${PROSPER_EMAIL_FROM}
+  email-to: ${PROSPER_EMAIL_TO}
+  sendgrid-api-key: ${PROSPER_SENDGRID_API_KEY}
   global-filters:
     listing_category_id: "1"
     has_mortgage: "true"

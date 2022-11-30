@@ -21,4 +21,7 @@ public class ProsperConfig
     private double minimumInvestmentAmount;
     private Map<String, String> globalFilters;
     private int orderListLimit;
+    private String emailFrom;
+    private String emailTo;
+    private String sendgridApiKey;
 }

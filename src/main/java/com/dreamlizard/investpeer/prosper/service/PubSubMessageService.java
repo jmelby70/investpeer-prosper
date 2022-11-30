@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.function.Consumer;
@@ -48,7 +49,7 @@ public class PubSubMessageService
         {
             prosperBuyNotesService.buyNotes();
         }
-        catch (ProsperRestServiceException e)
+        catch (ProsperRestServiceException | IOException e)
         {
             log.error("Error running Buy Notes service");
             e.printStackTrace();
