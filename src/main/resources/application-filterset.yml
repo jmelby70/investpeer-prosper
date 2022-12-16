@@ -1,13 +1,13 @@
 filtersets:
   filter-set-list:
     0:
-      grades: C,D,E
+      grades: C,D,E,HR
       employment-length-over: 3
       inquiries-under: 0
       payment-income-ratio-under: 0.10
       loan-count-over: 0
     1:
-      grades: C,D,E
+      grades: C,D,E,HR
       employment-length-over: 2
       inquiries-under: 0
       payment-income-ratio-under: 0.11
