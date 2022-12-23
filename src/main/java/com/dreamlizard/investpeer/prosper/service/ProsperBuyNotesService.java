@@ -68,7 +68,7 @@ public class ProsperBuyNotesService
                     log.info("Filtered listing count: {}", filteredListings.size());
 
                     // Trim out Listings already pending on orders
-                    Set<Listing> trimmedListings = trimFilteredListing(filteredListings);
+                    Set<Listing> trimmedListings = trimFilteredListing(filteredListings, maxLoanCount);
                     log.info("Trimmed listing count: {}", trimmedListings.size());
                     log.debug("Final Listings: {}", trimmedListings.toString());
                     OrdersRequest ordersRequest = createOrderRequest(trimmedListings, maxLoanCount);
@@ -133,12 +133,13 @@ public class ProsperBuyNotesService
         return filteredListings;
     }
 
-    private Set<Listing> trimFilteredListing(Set<Listing> filteredListings) throws ProsperRestServiceException
+    private Set<Listing> trimFilteredListing(Set<Listing> filteredListings, int maxLoanCount) throws ProsperRestServiceException
     {
         OrdersList ordersList = ordersListRestService.getOrdersList();
         HashSet<Listing> trimmedListings = new HashSet<>(filteredListings);
         if (ordersList != null)
         {
+            // Remove listings we have already ordered
             for (OrdersResponse ordersResponse : ordersList.getResult())
             {
                 if ("IN_PROGRESS".equals(ordersResponse.getOrder_status()) && (ordersResponse.getBid_requests() != null))
@@ -149,11 +150,29 @@ public class ProsperBuyNotesService
                         {
                             if (bidRequest.getListing_id() == listing.getListing_number())
                             {
+                                log.info("Removing Listing already ordered: {}", listing.getListing_number());
                                 trimmedListings.remove(listing);
                             }
                         }
                     }
                 }
+            }
+
+            // Truncate the listings if we found more than we can afford
+            if (trimmedListings.size() > maxLoanCount)
+            {
+                log.info("Truncating order to max listing count of {}", maxLoanCount);
+                HashSet<Listing> truncatedListings = new HashSet<>();
+                int i = 0;
+                for (Listing listing: trimmedListings)
+                {
+                    if (i < maxLoanCount)
+                    {
+                        truncatedListings.add(listing);
+                        i++;
+                    }
+                }
+                trimmedListings = truncatedListings;
             }
         }
 
