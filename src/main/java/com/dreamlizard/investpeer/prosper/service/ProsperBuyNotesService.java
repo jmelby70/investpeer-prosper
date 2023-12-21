@@ -115,6 +115,7 @@ public class ProsperBuyNotesService
                                 filterSet.checkEmploymentLength(listing.getMonths_employed()) &&
                                 (listing.getCredit_bureau_values_transunion_indexed() != null) &&
                                 filterSet.checkInquiries(listing.getCredit_bureau_values_transunion_indexed().getG980s_inquiries_in_the_last_6_months()) &&
+                                filterSet.checkDelinquencies(listing.getCredit_bureau_values_transunion_indexed().getG218b_number_of_delinquent_accounts()) &&
                                 (listing.getStated_monthly_income() > 0) &&
                                 filterSet.checkPaymentIncomeRatio(listing.getListing_monthly_payment(), listing.getStated_monthly_income()))
                         {

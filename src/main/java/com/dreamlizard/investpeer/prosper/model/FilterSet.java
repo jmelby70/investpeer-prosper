@@ -8,6 +8,7 @@ public class FilterSet
     private String[] grades;
     private int employmentLengthOver;
     private int inquiriesUnder;
+    private int delinquenciesUnder;
     private double paymentIncomeRatioUnder;
     private int loanCountOver;
 
@@ -31,6 +32,11 @@ public class FilterSet
     public boolean checkInquiries(double inquiries)
     {
         return inquiries <= inquiriesUnder;
+    }
+
+    public boolean checkDelinquencies(double delinquencies)
+    {
+        return delinquencies <= delinquenciesUnder;
     }
 
     public boolean checkPaymentIncomeRatio(double payment, double monthlyIncome)
